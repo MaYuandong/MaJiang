@@ -1,39 +1,17 @@
 use core::fmt;
+// use rand::seq::SliceRandom;
+// use rand::thread_rng;
 use std::ops::{Add, Sub};
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Copy, Clone)]
 struct Tile {
     number: u8,
     kind: char,
 }
 
-impl PartialEq for Tile {
-    fn eq(&self, other: &Self) -> bool {
-        self.number == other.number && self.kind == other.kind
-    }
-}
-
-impl Eq for Tile {}
-
 impl fmt::Display for Tile {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}{}", self.number, self.kind)
-    }
-}
-
-impl PartialOrd for Tile {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Tile {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        if self.number != other.number {
-            self.number.cmp(&other.number)
-        } else {
-            self.kind.cmp(&other.kind)
-        }
     }
 }
 
@@ -60,7 +38,12 @@ impl Sub for Tile {
 }
 
 fn is_serial(first: Tile, second: Tile, tested: Tile) -> bool {
-    todo!();
+    let mut tiles: Vec<Tile> = [first, second, tested].to_vec();
+    tiles.sort_by_key(|key: &Tile| (key.kind, key.number));
+    match (tiles[2] - tiles[1], tiles[1] - tiles[0]) {
+        ((1, 0), (1, 0)) => true,
+        _ => false,
+    }
 }
 
 fn is_triple(first: Tile, second: Tile, tested: Tile) -> bool {
@@ -83,12 +66,12 @@ mod tests {
     #[test]
     fn test_tile() {
         let b1 = Tile {
-            number: 8,
+            number: 7,
             kind: 'B',
         };
 
         let b2 = Tile {
-            number: 9,
+            number: 8,
             kind: 'B',
         };
 
@@ -96,8 +79,19 @@ mod tests {
             number: 9,
             kind: 'B',
         };
-        println!("b1, b2, b3 : {} {} {}", b1, b2, b3);
-        println!("b2 = b1 + 1 {} and b2 = b3 {}", b2 == b1 + 1, b2 == b3);
-        println!("b2 - b1 {:#?}, b2 - b3 {:#?}", b2 - b1, b2 - b3);
+        let b4 = Tile {
+            number: 9,
+            kind: 'B',
+        };
+        let b5 = Tile {
+            number: 9,
+            kind: 'B',
+        };
+        let b6 = Tile {
+            number: 9,
+            kind: 'B',
+        };
+        assert_eq!(is_serial(b1, b2, b3), true);
+        assert_eq!(is_triple(b4, b5, b6), true);
     }
 }
